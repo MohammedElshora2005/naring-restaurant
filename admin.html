@@ -1,0 +1,662 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لوحة التحكم - نارنج</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .admin-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 6rem 2rem 2rem;
+        }
+        .admin-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border);
+        }
+        .admin-header h1 {
+            color: var(--primary);
+            font-size: 2rem;
+            font-weight: 300;
+        }
+        .admin-controls {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+        .admin-controls button {
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--text);
+            padding: 0.5rem 1rem;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .admin-controls button:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+        .login-required {
+            text-align: center;
+            padding: 4rem 2rem;
+        }
+        .login-required h2 {
+            color: var(--primary);
+            margin-bottom: 1rem;
+        }
+        .login-required .btn {
+            margin-top: 1rem;
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        .stat-card {
+            background: var(--card-bg);
+            padding: 1.5rem;
+            border-radius: 20px;
+            border: 1px solid var(--border);
+            text-align: center;
+        }
+        .stat-card i {
+            font-size: 2rem;
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+        }
+        .stat-card .number {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+        .stat-card .label {
+            font-size: 0.9rem;
+            opacity: 0.7;
+        }
+        .section-card {
+            background: var(--card-bg);
+            border-radius: 20px;
+            border: 1px solid var(--border);
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            overflow: hidden;
+        }
+        .section-card h2 {
+            color: var(--primary);
+            font-size: 1.5rem;
+            font-weight: 300;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .section-card h2 .refresh-btn {
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--text);
+            padding: 0.3rem 0.8rem;
+            border-radius: 50px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            transition: all 0.3s;
+        }
+        .section-card h2 .refresh-btn:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+        .table-wrapper {
+            overflow-x: auto;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9rem;
+        }
+        th {
+            background: var(--primary);
+            color: #fff;
+            padding: 12px;
+            text-align: right;
+        }
+        td {
+            padding: 10px 12px;
+            border-bottom: 1px solid var(--border);
+        }
+        tr:hover td {
+            background: rgba(230, 126, 34, 0.05);
+        }
+        .empty-message {
+            text-align: center;
+            padding: 2rem;
+            opacity: 0.6;
+        }
+        .loading {
+            text-align: center;
+            padding: 2rem;
+            color: var(--primary);
+        }
+        .badge {
+            display: inline-block;
+            padding: 0.2rem 0.8rem;
+            border-radius: 50px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        .badge-pending { background: #f39c12; color: #fff; }
+        .badge-confirmed { background: #27ae60; color: #fff; }
+        .badge-cancelled { background: #e74c3c; color: #fff; }
+        .badge-admin { background: #8e44ad; color: #fff; }
+        .badge-user { background: #3498db; color: #fff; }
+        .stars-display {
+            color: var(--gold);
+            letter-spacing: 2px;
+        }
+        .error-message {
+            text-align: center;
+            padding: 2rem;
+            color: #e74c3c;
+        }
+        .delete-btn {
+            background: #e74c3c;
+            color: #fff;
+            border: none;
+            padding: 4px 12px;
+            border-radius: 50px;
+            cursor: pointer;
+            font-size: 0.75rem;
+            transition: all 0.3s;
+        }
+        .delete-btn:hover {
+            background: #c0392b;
+        }
+        @media (max-width: 768px) {
+            .admin-container { padding: 5rem 1rem 1rem; }
+            .stats-grid { grid-template-columns: 1fr 1fr; }
+            table { font-size: 0.75rem; }
+            th, td { padding: 6px 8px; }
+        }
+        @media (max-width: 480px) {
+            .stats-grid { grid-template-columns: 1fr; }
+            .admin-header { flex-direction: column; align-items: flex-start; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ====== HEADER ====== -->
+    <header class="header" id="header">
+        <div class="header-container">
+            <a href="/" class="logo" id="mainLogo">
+                <span class="logo-ar" data-en="Nar" data-ar="نار">نار</span><span class="logo-ar highlight" data-en="ng" data-ar="نج">نج</span>
+                <span class="logo-en" style="display:none;" data-en="Nar" data-ar="نار">Nar</span><span class="logo-en highlight" style="display:none;" data-en="ng" data-ar="نج">ng</span>
+            </a>
+            <nav class="nav-links" id="navLinks">
+                <a href="/" data-en="Home" data-ar="الرئيسية">الرئيسية</a>
+                <a href="/admin.html" class="btn-nav" data-en="Admin Panel" data-ar="لوحة التحكم">لوحة التحكم</a>
+            </nav>
+            <div class="header-controls">
+                <button class="lang-toggle" onclick="toggleLanguage()" title="تبديل اللغة">
+                    <i class="fas fa-globe"></i>
+                    <span id="langLabel">EN</span>
+                </button>
+                <button class="theme-toggle" onclick="toggleTheme()" title="تبديل الوضع">
+                    <i class="fas fa-moon" id="themeIcon"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- ====== ADMIN CONTENT ====== -->
+    <div class="admin-container" id="adminContent">
+        <!-- سيتم تعبئته بواسطة JS -->
+    </div>
+
+    <script>
+        // =============================================
+        // Admin Page - JavaScript
+        // =============================================
+
+        let currentLang = 'ar';
+        let currentTheme = 'dark';
+        let currentUser = null;
+        let isAdmin = false;
+
+        // ===== التحقق من حالة المستخدم =====
+        function checkAuth() {
+            const savedUser = sessionStorage.getItem('adminUser');
+            if (savedUser) {
+                try {
+                    currentUser = JSON.parse(savedUser);
+                    if (currentUser.role === 'admin') {
+                        isAdmin = true;
+                        return true;
+                    }
+                } catch (e) {
+                    sessionStorage.removeItem('adminUser');
+                }
+            }
+            return false;
+        }
+
+        // ===== تسجيل الدخول كأدمن =====
+        async function adminLogin() {
+            const username = prompt(currentLang === 'ar' ? '👑 أدخل اسم المستخدم:' : '👑 Enter username:');
+            if (!username) return;
+            
+            const password = prompt(currentLang === 'ar' ? '🔑 أدخل كلمة المرور:' : '🔑 Enter password:');
+            if (!password) return;
+            
+            try {
+                const response = await fetch('/api/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, password })
+                });
+                const data = await response.json();
+                
+                if (data.success && data.user.role === 'admin') {
+                    currentUser = data.user;
+                    isAdmin = true;
+                    sessionStorage.setItem('adminUser', JSON.stringify(currentUser));
+                    renderAdminPanel();
+                } else {
+                    alert(currentLang === 'ar' ? '❌ اسم المستخدم أو كلمة المرور غير صحيحة أو ليس لديك صلاحيات أدمن' : '❌ Invalid credentials or not an admin');
+                    renderAdminPanel();
+                }
+            } catch (error) {
+                alert(currentLang === 'ar' ? '❌ خطأ في الاتصال بالخادم' : '❌ Server error');
+            }
+        }
+
+        // ===== تسجيل الخروج =====
+        function adminLogout() {
+            sessionStorage.removeItem('adminUser');
+            currentUser = null;
+            isAdmin = false;
+            renderAdminPanel();
+        }
+
+        // ===== تبديل اللغة =====
+        function toggleLanguage() {
+            const isArabic = currentLang === 'ar';
+            currentLang = isArabic ? 'en' : 'ar';
+            document.documentElement.lang = currentLang;
+            document.documentElement.dir = currentLang === 'ar' ? 'rtl' : 'ltr';
+            document.getElementById('langLabel').textContent = isArabic ? 'AR' : 'EN';
+            
+            document.querySelectorAll('.logo-ar, .logo-en').forEach(el => {
+                el.style.display = 'none';
+            });
+            document.querySelectorAll(isArabic ? '.logo-ar' : '.logo-en').forEach(el => {
+                el.style.display = 'inline';
+            });
+            
+            document.querySelectorAll('[data-en][data-ar]').forEach(el => {
+                el.textContent = isArabic ? el.getAttribute('data-en') : el.getAttribute('data-ar');
+            });
+            
+            renderAdminPanel();
+        }
+
+        // ===== تبديل الوضع =====
+        function toggleTheme() {
+            currentTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', currentTheme);
+            document.getElementById('themeIcon').className = currentTheme === 'dark' ? 'fas fa-moon' : 'fas fa-sun';
+            localStorage.setItem('theme', currentTheme);
+        }
+
+        // ===== تحميل الإحصائيات =====
+        async function loadStats() {
+            if (!isAdmin || !currentUser) return;
+            
+            try {
+                const response = await fetch(`/api/admin/stats?admin_id=${currentUser.id}`);
+                const data = await response.json();
+                
+                document.getElementById('totalCustomers').textContent = data.customers || 0;
+                document.getElementById('totalBookings').textContent = data.bookings || 0;
+                document.getElementById('totalReviews').textContent = data.reviews || 0;
+                document.getElementById('avgRating').textContent = data.avg_rating || '0';
+            } catch (error) {
+                console.error('Error loading stats:', error);
+            }
+        }
+
+        // ===== تحميل العملاء =====
+        async function loadCustomers() {
+            if (!isAdmin || !currentUser) return;
+            
+            const container = document.getElementById('customersContainer');
+            container.innerHTML = '<div class="loading">جاري التحميل...</div>';
+            
+            try {
+                const response = await fetch(`/api/admin/customers?admin_id=${currentUser.id}`);
+                const data = await response.json();
+                
+                if (!Array.isArray(data) || data.length === 0) {
+                    container.innerHTML = `<div class="empty-message">${currentLang === 'ar' ? 'لا يوجد عملاء' : 'No customers'}</div>`;
+                    return;
+                }
+                
+                let html = `<table>
+                    <thead><tr>
+                        <th>#</th>
+                        <th>${currentLang === 'ar' ? 'اسم المستخدم' : 'Username'}</th>
+                        <th>${currentLang === 'ar' ? 'الاسم الكامل' : 'Full Name'}</th>
+                        <th>${currentLang === 'ar' ? 'البريد الإلكتروني' : 'Email'}</th>
+                        <th>${currentLang === 'ar' ? 'الهاتف' : 'Phone'}</th>
+                        <th>${currentLang === 'ar' ? 'الدور' : 'Role'}</th>
+                        <th>${currentLang === 'ar' ? 'تاريخ التسجيل' : 'Joined'}</th>
+                    </tr></thead><tbody>`;
+                
+                data.forEach((c, i) => {
+                    const date = c.created_at ? new Date(c.created_at).toLocaleDateString(currentLang === 'ar' ? 'ar-EG' : 'en-US') : '-';
+                    const roleBadge = c.role === 'admin' 
+                        ? '<span class="badge badge-admin">👑 Admin</span>' 
+                        : '<span class="badge badge-user">User</span>';
+                    html += `<tr>
+                        <td>${i + 1}</td>
+                        <td>${c.username || '-'}</td>
+                        <td>${c.full_name || '-'}</td>
+                        <td>${c.email || '-'}</td>
+                        <td>${c.phone || '-'}</td>
+                        <td>${roleBadge}</td>
+                        <td>${date}</td>
+                    </tr>`;
+                });
+                
+                html += `</tbody></table>`;
+                container.innerHTML = html;
+            } catch (error) {
+                container.innerHTML = `<div class="error-message">❌ ${currentLang === 'ar' ? 'خطأ في تحميل العملاء' : 'Error loading customers'}</div>`;
+            }
+        }
+
+        // ===== تحميل الحجوزات =====
+        async function loadBookings() {
+            if (!isAdmin || !currentUser) return;
+            
+            const container = document.getElementById('bookingsContainer');
+            container.innerHTML = '<div class="loading">جاري التحميل...</div>';
+            
+            try {
+                const response = await fetch(`/api/admin/bookings?admin_id=${currentUser.id}`);
+                const data = await response.json();
+                
+                if (!Array.isArray(data) || data.length === 0) {
+                    container.innerHTML = `<div class="empty-message">${currentLang === 'ar' ? 'لا توجد حجوزات' : 'No bookings'}</div>`;
+                    return;
+                }
+                
+                const statusMap = {
+                    'pending': { ar: 'قيد الانتظار', en: 'Pending', class: 'badge-pending' },
+                    'confirmed': { ar: 'مؤكد', en: 'Confirmed', class: 'badge-confirmed' },
+                    'cancelled': { ar: 'ملغي', en: 'Cancelled', class: 'badge-cancelled' }
+                };
+                
+                let html = `<table>
+                    <thead><tr>
+                        <th>#</th>
+                        <th>${currentLang === 'ar' ? 'العميل' : 'Customer'}</th>
+                        <th>${currentLang === 'ar' ? 'الهاتف' : 'Phone'}</th>
+                        <th>${currentLang === 'ar' ? 'التاريخ' : 'Date'}</th>
+                        <th>${currentLang === 'ar' ? 'الوقت' : 'Time'}</th>
+                        <th>${currentLang === 'ar' ? 'الأشخاص' : 'People'}</th>
+                        <th>${currentLang === 'ar' ? 'الحالة' : 'Status'}</th>
+                    </tr></thead><tbody>`;
+                
+                data.forEach((b, i) => {
+                    const status = statusMap[b.status] || statusMap.pending;
+                    const statusText = currentLang === 'ar' ? status.ar : status.en;
+                    const date = b.booking_date ? new Date(b.booking_date).toLocaleDateString(currentLang === 'ar' ? 'ar-EG' : 'en-US') : '-';
+                    
+                    html += `<tr>
+                        <td>${i + 1}</td>
+                        <td>${b.customer_name || '-'}</td>
+                        <td>${b.customer_phone || '-'}</td>
+                        <td>${date}</td>
+                        <td>${b.booking_time || '-'}</td>
+                        <td>${b.number_of_people || '-'}</td>
+                        <td><span class="badge ${status.class}">${statusText}</span></td>
+                    </tr>`;
+                });
+                
+                html += `</tbody></table>`;
+                container.innerHTML = html;
+            } catch (error) {
+                container.innerHTML = `<div class="error-message">❌ ${currentLang === 'ar' ? 'خطأ في تحميل الحجوزات' : 'Error loading bookings'}</div>`;
+            }
+        }
+
+        // ===== تحميل التقييمات =====
+        async function loadReviews() {
+            if (!isAdmin || !currentUser) return;
+            
+            const container = document.getElementById('reviewsContainer');
+            container.innerHTML = '<div class="loading">جاري التحميل...</div>';
+            
+            try {
+                const response = await fetch(`/api/admin/reviews?admin_id=${currentUser.id}`);
+                const data = await response.json();
+                
+                if (!Array.isArray(data) || data.length === 0) {
+                    container.innerHTML = `<div class="empty-message">${currentLang === 'ar' ? 'لا توجد تقييمات' : 'No reviews'}</div>`;
+                    return;
+                }
+                
+                let html = `<table>
+                    <thead><tr>
+                        <th>#</th>
+                        <th>${currentLang === 'ar' ? 'العميل' : 'Customer'}</th>
+                        <th>${currentLang === 'ar' ? 'التقييم' : 'Rating'}</th>
+                        <th>${currentLang === 'ar' ? 'النص' : 'Review'}</th>
+                        <th>${currentLang === 'ar' ? 'التاريخ' : 'Date'}</th>
+                        <th>${currentLang === 'ar' ? 'إجراء' : 'Action'}</th>
+                    </tr></thead><tbody>`;
+                
+                data.forEach((r, i) => {
+                    const stars = '★'.repeat(r.stars || 0) + '☆'.repeat(5 - (r.stars || 0));
+                    const date = r.created_at ? new Date(r.created_at).toLocaleDateString(currentLang === 'ar' ? 'ar-EG' : 'en-US') : '-';
+                    
+                    html += `<tr>
+                        <td>${i + 1}</td>
+                        <td>${r.customer_name || '-'}</td>
+                        <td class="stars-display">${stars}</td>
+                        <td>${r.review_text || '-'}</td>
+                        <td>${date}</td>
+                        <td>
+                            <button class="delete-btn" onclick="deleteReview(${r.id})">
+                                ${currentLang === 'ar' ? '🗑️ حذف' : '🗑️ Delete'}
+                            </button>
+                        </td>
+                    </tr>`;
+                });
+                
+                html += `</tbody></table>`;
+                container.innerHTML = html;
+            } catch (error) {
+                container.innerHTML = `<div class="error-message">❌ ${currentLang === 'ar' ? 'خطأ في تحميل التقييمات' : 'Error loading reviews'}</div>`;
+            }
+        }
+
+        // ===== حذف تقييم =====
+        async function deleteReview(reviewId) {
+            if (!isAdmin || !currentUser) return;
+            
+            const confirmMsg = currentLang === 'ar' 
+                ? 'هل أنت متأكد من حذف هذا التقييم؟' 
+                : 'Are you sure you want to delete this review?';
+            
+            if (!confirm(confirmMsg)) return;
+            
+            try {
+                const response = await fetch(`/api/reviews/${reviewId}`, {
+                    method: 'DELETE',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ admin_id: currentUser.id })
+                });
+                const result = await response.json();
+                
+                if (result.success) {
+                    alert(result.message);
+                    loadReviews();
+                    loadStats();
+                } else {
+                    alert(result.message);
+                }
+            } catch (error) {
+                alert(currentLang === 'ar' ? '❌ خطأ في حذف التقييم' : '❌ Error deleting review');
+            }
+        }
+
+        // ===== تحميل الكل =====
+        async function loadAll() {
+            if (isAdmin && currentUser) {
+                await loadStats();
+                await loadCustomers();
+                await loadBookings();
+                await loadReviews();
+            }
+        }
+
+        // ===== عرض لوحة التحكم =====
+        function renderAdminPanel() {
+            const container = document.getElementById('adminContent');
+            
+            if (!isAdmin || !currentUser) {
+                container.innerHTML = `
+                    <div class="login-required">
+                        <i class="fas fa-lock" style="font-size: 4rem; color: var(--primary); margin-bottom: 1rem;"></i>
+                        <h2>${currentLang === 'ar' ? '🔐 يرجى تسجيل الدخول كأدمن' : '🔐 Please login as Admin'}</h2>
+                        <p style="color: var(--text-muted); margin-bottom: 1.5rem;">
+                            ${currentLang === 'ar' ? 'هذه الصفحة مخصصة للمشرفين فقط' : 'This page is for administrators only'}
+                        </p>
+                        <p style="color: var(--text-muted); margin-bottom: 1.5rem; font-size: 0.9rem;">
+                            👑 ${currentLang === 'ar' ? 'admin / admin123' : 'admin / admin123'}
+                        </p>
+                        <button class="btn btn-primary" onclick="adminLogin()">
+                            ${currentLang === 'ar' ? '👑 تسجيل الدخول كأدمن' : '👑 Login as Admin'}
+                        </button>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = `
+                <div class="admin-header">
+                    <h1>📊 ${currentLang === 'ar' ? 'لوحة التحكم' : 'Dashboard'}</h1>
+                    <div class="admin-controls">
+                        <span style="color: var(--primary);">
+                            👑 ${currentUser.full_name || currentUser.username}
+                        </span>
+                        <button onclick="adminLogout()" style="background: #e74c3c; color: #fff; border: none; padding: 0.5rem 1rem; border-radius: 50px; cursor: pointer;">
+                            ${currentLang === 'ar' ? 'تسجيل الخروج' : 'Logout'}
+                        </button>
+                        <button onclick="loadAll()">
+                            <i class="fas fa-sync"></i>
+                            ${currentLang === 'ar' ? 'تحديث الكل' : 'Refresh All'}
+                        </button>
+                    </div>
+                </div>
+
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <i class="fas fa-users"></i>
+                        <div class="number" id="totalCustomers">-</div>
+                        <div class="label">${currentLang === 'ar' ? 'العملاء' : 'Customers'}</div>
+                    </div>
+                    <div class="stat-card">
+                        <i class="fas fa-calendar-check"></i>
+                        <div class="number" id="totalBookings">-</div>
+                        <div class="label">${currentLang === 'ar' ? 'الحجوزات' : 'Bookings'}</div>
+                    </div>
+                    <div class="stat-card">
+                        <i class="fas fa-star"></i>
+                        <div class="number" id="totalReviews">-</div>
+                        <div class="label">${currentLang === 'ar' ? 'التقييمات' : 'Reviews'}</div>
+                    </div>
+                    <div class="stat-card">
+                        <i class="fas fa-star-half-alt"></i>
+                        <div class="number" id="avgRating">-</div>
+                        <div class="label">${currentLang === 'ar' ? 'متوسط التقييم' : 'Average Rating'}</div>
+                    </div>
+                </div>
+
+                <div class="section-card">
+                    <h2>
+                        <i class="fas fa-users"></i>
+                        ${currentLang === 'ar' ? 'العملاء' : 'Customers'}
+                        <button class="refresh-btn" onclick="loadCustomers()"><i class="fas fa-sync"></i></button>
+                    </h2>
+                    <div class="table-wrapper">
+                        <div id="customersContainer"><div class="loading">جاري التحميل...</div></div>
+                    </div>
+                </div>
+
+                <div class="section-card">
+                    <h2>
+                        <i class="fas fa-calendar-check"></i>
+                        ${currentLang === 'ar' ? 'الحجوزات' : 'Bookings'}
+                        <button class="refresh-btn" onclick="loadBookings()"><i class="fas fa-sync"></i></button>
+                    </h2>
+                    <div class="table-wrapper">
+                        <div id="bookingsContainer"><div class="loading">جاري التحميل...</div></div>
+                    </div>
+                </div>
+
+                <div class="section-card">
+                    <h2>
+                        <i class="fas fa-star"></i>
+                        ${currentLang === 'ar' ? 'التقييمات' : 'Reviews'}
+                        <button class="refresh-btn" onclick="loadReviews()"><i class="fas fa-sync"></i></button>
+                    </h2>
+                    <div class="table-wrapper">
+                        <div id="reviewsContainer"><div class="loading">جاري التحميل...</div></div>
+                    </div>
+                </div>
+            `;
+
+            loadAll();
+        }
+
+        // ===== تهيئة الصفحة =====
+        document.addEventListener('DOMContentLoaded', function() {
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme) {
+                currentTheme = savedTheme;
+                document.documentElement.setAttribute('data-theme', currentTheme);
+                document.getElementById('themeIcon').className = currentTheme === 'dark' ? 'fas fa-moon' : 'fas fa-sun';
+            }
+            
+            // تحديث اللوجو
+            document.querySelectorAll('.logo-ar, .logo-en').forEach(el => {
+                el.style.display = 'none';
+            });
+            document.querySelectorAll('.logo-ar').forEach(el => {
+                el.style.display = 'inline';
+            });
+            
+            if (checkAuth()) {
+                renderAdminPanel();
+            } else {
+                renderAdminPanel();
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>نارنج · مطعم مشويات</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <!-- ====== HEADER ====== -->
+    <header class="header" id="header">
+        <div class="header-container">
+            <a href="#" class="logo" id="mainLogo">
+                <span class="logo-ar" data-en="Nar" data-ar="نار">نار</span><span class="logo-ar highlight" data-en="ng" data-ar="نج">نج</span>
+                <span class="logo-en" style="display:none;" data-en="Nar" data-ar="نار">Nar</span><span class="logo-en highlight" style="display:none;" data-en="ng" data-ar="نج">ng</span>
+            </a>
+            
+            <nav class="nav-links" id="navLinks">
+                <a href="#menu" data-en="Menu" data-ar="القائمة">القائمة</a>
+                <a href="#booking" data-en="Bookings" data-ar="الحجوزات">الحجوزات</a>
+                <a href="#reviews" data-en="Reviews" data-ar="التقييمات">التقييمات</a>
+                <a href="#login-section" class="btn-nav" id="authBtn" data-en="Login" data-ar="تسجيل الدخول">تسجيل الدخول</a>
+            </nav>
+
+            <div class="header-controls">
+                <button class="lang-toggle" onclick="toggleLanguage()" title="تبديل اللغة">
+                    <i class="fas fa-globe"></i>
+                    <span id="langLabel">EN</span>
+                </button>
+                <button class="theme-toggle" onclick="toggleTheme()" title="تبديل الوضع">
+                    <i class="fas fa-moon" id="themeIcon"></i>
+                </button>
+                <button class="mobile-menu-btn" onclick="toggleMobileMenu()">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- ====== HERO ====== -->
+    <section class="hero" id="home">
+        <div class="hero-overlay"></div>
+        <div class="hero-content">
+            <div class="hero-badge">
+                <i class="fas fa-fire"></i> 
+                <span data-en="The Finest Arabic Grills" data-ar="أشهى المشويات العربية">أشهى المشويات العربية</span>
+            </div>
+            <h1 id="heroTitle">
+                <span class="hero-ar" data-en="Nar" data-ar="نار">نار</span><span class="hero-ar highlight" data-en="ng" data-ar="نج">نج</span>
+                <span class="hero-en" style="display:none;" data-en="Nar" data-ar="نار">Nar</span><span class="hero-en highlight" style="display:none;" data-en="ng" data-ar="نج">ng</span>
+            </h1>
+            <p data-en="Lamb, smoked ribs, charcoal chicken. An unforgettable experience in every bite." 
+               data-ar="لحم ضاني، أضلاع مدخنة، فراخ على الفحم. تجربة لا تُنسى في كل قضمة.">
+                لحم ضاني، أضلاع مدخنة، فراخ على الفحم. تجربة لا تُنسى في كل قضمة.
+            </p>
+            <div class="btn-group" id="authButtons">
+                <button class="btn btn-primary" onclick="showLogin()" data-en="Login" data-ar="تسجيل الدخول">تسجيل الدخول</button>
+                <button class="btn btn-outline" onclick="showRegister()" data-en="Sign Up" data-ar="إنشاء حساب">إنشاء حساب</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- ====== LOGIN ====== -->
+    <section id="login-section" class="section" style="display:none;">
+        <div class="section-header">
+            <h2 data-en="Login" data-ar="تسجيل الدخول">تسجيل الدخول</h2>
+        </div>
+        <div class="login-card">
+            <form id="loginForm">
+                <div class="input-group">
+                    <i class="fas fa-user"></i>
+                    <input type="text" id="loginUsername" placeholder="اسم المستخدم" data-en-placeholder="Username" data-ar-placeholder="اسم المستخدم" required>
+                </div>
+                <div class="input-group">
+                    <i class="fas fa-lock"></i>
+                    <input type="password" id="loginPassword" placeholder="كلمة المرور" data-en-placeholder="Password" data-ar-placeholder="كلمة المرور" required>
+                </div>
+                <button type="submit" class="btn btn-primary" style="width:100%;" data-en="Login" data-ar="دخول">دخول</button>
+                <p id="loginMessage" class="login-msg"></p>
+                <p style="margin-top:1rem; opacity:0.7;">
+                    <span data-en="Don't have an account?" data-ar="ليس لديك حساب؟">ليس لديك حساب؟</span> 
+                    <a href="#" onclick="showRegister(); return false;" style="color:var(--primary);" data-en="Sign Up" data-ar="أنشئ حساباً">أنشئ حساباً</a>
+                </p>
+            </form>
+        </div>
+    </section>
+
+    <!-- ====== REGISTER ====== -->
+    <section id="register-section" class="section" style="display:none;">
+        <div class="section-header">
+            <h2 data-en="Create Account" data-ar="إنشاء حساب جديد">إنشاء حساب جديد</h2>
+        </div>
+        <div class="login-card">
+            <form id="registerForm">
+                <div class="input-group">
+                    <i class="fas fa-user"></i>
+                    <input type="text" id="regUsername" placeholder="اسم المستخدم" data-en-placeholder="Username" data-ar-placeholder="اسم المستخدم" required>
+                </div>
+                <div class="input-group">
+                    <i class="fas fa-user-tag"></i>
+                    <input type="text" id="regFullName" placeholder="الاسم الكامل" data-en-placeholder="Full Name" data-ar-placeholder="الاسم الكامل">
+                </div>
+                <div class="input-group">
+                    <i class="fas fa-envelope"></i>
+                    <input type="email" id="regEmail" placeholder="البريد الإلكتروني" data-en-placeholder="Email" data-ar-placeholder="البريد الإلكتروني" required>
+                </div>
+                <div class="input-group">
+                    <i class="fas fa-phone"></i>
+                    <input type="tel" id="regPhone" placeholder="رقم الهاتف" data-en-placeholder="Phone Number" data-ar-placeholder="رقم الهاتف" value="01020063819">
+                </div>
+                <div class="input-group">
+                    <i class="fas fa-lock"></i>
+                    <input type="password" id="regPassword" placeholder="كلمة المرور" data-en-placeholder="Password" data-ar-placeholder="كلمة المرور" required>
+                </div>
+                <button type="submit" class="btn btn-primary" style="width:100%;" data-en="Create Account" data-ar="إنشاء حساب">إنشاء حساب</button>
+                <p id="registerMessage" class="login-msg"></p>
+                <p style="margin-top:1rem; opacity:0.7;">
+                    <span data-en="Already have an account?" data-ar="لديك حساب؟">لديك حساب؟</span> 
+                    <a href="#" onclick="showLogin(); return false;" style="color:var(--primary);" data-en="Login" data-ar="سجل دخول">سجل دخول</a>
+                </p>
+            </form>
+        </div>
+    </section>
+
+    <!-- ====== MENU ====== -->
+    <section class="section" id="menu" style="display:none;">
+        <div class="section-header">
+            <h2 data-en="Menu" data-ar="قائمة المشويات">قائمة المشويات</h2>
+            <p data-en="The finest selection of grilled meats with an authentic Arabic touch" 
+               data-ar="أشهى أنواع اللحوم والمشاوي بلمسة عربية أصيلة">أشهى أنواع اللحوم والمشاوي بلمسة عربية أصيلة</p>
+        </div>
+        <div id="menuContainer"></div>
+    </section>
+
+    <!-- ====== BOOKING ====== -->
+    <section class="section alt-bg" id="booking" style="display:none;">
+        <div class="section-header">
+            <h2 data-en="Table Booking" data-ar="حجز طاولة">حجز طاولة</h2>
+            <p data-en="Book your table and enjoy the finest grills" data-ar="احجز طاولتك واستمتع بأشهى المشويات">احجز طاولتك واستمتع بأشهى المشويات</p>
+        </div>
+        <div class="booking-card">
+            <form id="bookingForm">
+                <div class="booking-row">
+                    <input type="text" id="bookName" placeholder="الاسم" data-en-placeholder="Name" data-ar-placeholder="الاسم" required>
+                    <input type="date" id="bookDate" required>
+                </div>
+                <div class="booking-row">
+                    <input type="number" id="peopleCount" placeholder="عدد الأشخاص" data-en-placeholder="Number of People" data-ar-placeholder="عدد الأشخاص" min="1" required>
+                    <input type="time" id="bookTime" required>
+                </div>
+                <div class="booking-row">
+                    <input type="tel" id="bookPhone" placeholder="رقم الهاتف" data-en-placeholder="Phone Number" data-ar-placeholder="رقم الهاتف" value="01020063819" required>
+                    <input type="text" id="bookRequests" placeholder="طلبات خاصة" data-en-placeholder="Special Requests" data-ar-placeholder="طلبات خاصة">
+                </div>
+                <button type="submit" class="btn btn-primary" style="width:100%;" data-en="Confirm Booking" data-ar="تأكيد الحجز">تأكيد الحجز</button>
+                <p id="bookingMessage" class="login-msg"></p>
+            </form>
+        </div>
+    </section>
+
+    <!-- ====== REVIEWS ====== -->
+    <section class="section" id="reviews" style="display:none;">
+        <div class="section-header">
+            <h2 data-en="Customer Reviews" data-ar="آراء العملاء">آراء العملاء</h2>
+            <p data-en="What our guests say about their experience" data-ar="ما يقوله ضيوفنا عن تجربتهم">ما يقوله ضيوفنا عن تجربتهم</p>
+        </div>
+        <div class="reviews-grid" id="reviewsGrid"></div>
+        
+        <div class="login-card" style="margin-top:3rem; max-width:600px;">
+            <h3 style="color:var(--primary); margin-bottom:1.5rem;" data-en="Add Your Review" data-ar="أضف تقييمك">أضف تقييمك</h3>
+            <form id="reviewForm">
+                <div class="input-group">
+                    <i class="fas fa-star"></i>
+                    <select id="reviewStars" style="width:100%; padding:0.9rem; background:var(--bg); border:none; color:var(--text); font-size:1rem;">
+                        <option value="5">★★★★★</option>
+                        <option value="4">★★★★</option>
+                        <option value="3">★★★</option>
+                        <option value="2">★★</option>
+                        <option value="1">★</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <i class="fas fa-comment"></i>
+                    <input type="text" id="reviewText" placeholder="اكتب رأيك هنا..." data-en-placeholder="Write your review here..." data-ar-placeholder="اكتب رأيك هنا..." required>
+                </div>
+                <button type="submit" class="btn btn-primary" style="width:100%;" data-en="Post Review" data-ar="نشر التقييم">نشر التقييم</button>
+                <p id="reviewMessage" class="login-msg"></p>
+            </form>
+        </div>
+    </section>
+
+    <!-- ====== FOOTER ====== -->
+    <footer>
+        <div class="footer-grid">
+            <div class="footer-brand">
+                <h3 id="footerLogo">
+                    <span class="footer-ar" data-en="Nar" data-ar="نار">نار</span><span class="footer-ar" data-en="ng" data-ar="نج">نج</span>
+                    <span class="footer-en" style="display:none;" data-en="Nar" data-ar="نار">Nar</span><span class="footer-en" style="display:none;" data-en="ng" data-ar="نج">ng</span>
+                </h3>
+                <p data-en="Premium Arabic grills · Elegant atmosphere · Unforgettable taste" 
+                   data-ar="مشويات عربية فاخرة · أجواء راقية · طعم لا يُنسى">مشويات عربية فاخرة · أجواء راقية · طعم لا يُنسى</p>
+                <div class="social-icons">
+                    <a href="#"><i class="fab fa-instagram"></i></a>
+                    <a href="#"><i class="fab fa-facebook"></i></a>
+                    <a href="#"><i class="fab fa-twitter"></i></a>
+                </div>
+            </div>
+            <div class="footer-links">
+                <h4 data-en="Navigation" data-ar="التنقل">التنقل</h4>
+                <a href="#menu" data-en="Menu" data-ar="القائمة">القائمة</a>
+                <a href="#booking" data-en="Bookings" data-ar="الحجوزات">الحجوزات</a>
+                <a href="#reviews" data-en="Reviews" data-ar="التقييمات">التقييمات</a>
+            </div>
+            <div class="footer-hours">
+                <h4 data-en="Opening Hours" data-ar="ساعات العمل">ساعات العمل</h4>
+                <p data-en="Mon - Thu: 11am - 10pm" data-ar="الإثنين - الخميس: ١١ ص - ١٠ م">الإثنين - الخميس: ١١ ص - ١٠ م</p>
+                <p data-en="Friday: 11am - 12am" data-ar="الجمعة: ١١ ص - ١٢ ص">الجمعة: ١١ ص - ١٢ ص</p>
+                <p data-en="Saturday: 10am - 12am" data-ar="السبت: ١٠ ص - ١٢ ص">السبت: ١٠ ص - ١٢ ص</p>
+                <p data-en="Sunday: 10am - 9pm" data-ar="الأحد: ١٠ ص - ٩ م">الأحد: ١٠ ص - ٩ م</p>
+            </div>
+            <div class="footer-links">
+                <h4 data-en="Contact Us" data-ar="اتصل بنا">اتصل بنا</h4>
+                <p><i class="fas fa-phone"></i> 01020063819</p>
+                <p><i class="fas fa-map-marker-alt"></i> <span data-en="Cairo, Zamalek" data-ar="القاهرة، الزمالك">القاهرة، الزمالك</span></p>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2024 <span data-en="Narng. All Rights Reserved." data-ar="نارنج. جميع الحقوق محفوظة.">نارنج. جميع الحقوق محفوظة.</span></p>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>
