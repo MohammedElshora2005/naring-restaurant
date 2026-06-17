@@ -5,7 +5,7 @@ const path = require('path');
 const fs = require('fs');
 
 const app = express();
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
 
 // Middleware
 app.use(cors());
@@ -13,21 +13,25 @@ app.use(express.json());
 app.use(express.static('public'));
 
 // =============================================
-// قاعدة البيانات SQLite
+// قاعدة البيانات - In-Memory لـ Vercel
 // =============================================
-const DB_PATH = path.join(__dirname, 'naring.db');
+
+// استخدام ':memory:' بدلاً من ملف naring.db عشان يشتغل على Vercel
+const DB_PATH = ':memory:';
+
+console.log(`📊 استخدام قاعدة بيانات In-Memory (لـ Vercel)`);
 
 const db = new sqlite3.Database(DB_PATH, (err) => {
     if (err) {
         console.error('❌ خطأ في فتح قاعدة البيانات:', err.message);
         process.exit(1);
     }
-    console.log('✅ تم الاتصال بقاعدة البيانات');
+    console.log('✅ تم الاتصال بقاعدة البيانات (In-Memory)');
     createTables();
 });
 
 function createTables() {
-    // 1. جدول العملاء (مع إضافة عمود role)
+    // 1. جدول العملاء (مع عمود role)
     db.run(`
         CREATE TABLE IF NOT EXISTS customers (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -83,7 +87,7 @@ function createTables() {
         else console.log('✅ جدول reviews جاهز');
     });
 
-    // إضافة مستخدمين تجريبيين (أدمن + مستخدمين عاديين) - فقط في حالة عدم وجود مستخدمين
+    // إضافة مستخدمين تجريبيين (أدمن + مستخدمين عاديين)
     db.get(`SELECT COUNT(*) as count FROM customers`, (err, row) => {
         if (err) {
             console.error('❌ خطأ في التحقق من العملاء:', err.message);
@@ -105,6 +109,9 @@ function createTables() {
                 `, [customer.username, customer.email, customer.password, customer.full_name, customer.phone, customer.role]);
             });
             console.log('✅ تم إضافة مستخدمين تجريبيين (أدمن + مستخدمين)');
+            console.log('👑 أدمن: admin / admin123');
+            console.log('👤 مستخدم: mostafa / 123456');
+            console.log('⚠️  ملاحظة: البيانات في الذاكرة فقط (تختفي عند إعادة التشغيل)');
         }
     });
 }
@@ -447,9 +454,10 @@ app.get('/admin.html', (req, res) => {
 // =============================================
 app.listen(PORT, () => {
     console.log(`🚀 الخادم يعمل على http://localhost:${PORT}`);
-    console.log('📊 قاعدة البيانات: naring.db');
+    console.log('📊 قاعدة البيانات: In-Memory (لـ Vercel)');
     console.log('📁 المسار:', __dirname);
     console.log('📋 صفحة admin: http://localhost:3000/admin.html');
-    console.log('\n⚠️  ملاحظة: بيانات الدخول غير معروضة هنا للأمان');
-    console.log('💡 إذا كنت بحاجة لحساب أدمن، راجع ملف الإعدادات\n');
+    console.log('\n⚠️  ملاحظة: البيانات في الذاكرة فقط (تختفي عند إعادة التشغيل)');
+    console.log('👑 أدمن: admin / admin123');
+    console.log('👤 مستخدم: mostafa / 123456\n');
 });
