@@ -1,0 +1,24 @@
+# Node.js
+node_modules/
+npm-debug.log
+package-lock.json
+
+# Database
+naring.db
+naring.db-journal
+
+# Environment
+.env
+.env.local
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+
+# Logs
+logs/
+*.log
