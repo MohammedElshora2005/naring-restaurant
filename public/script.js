@@ -1,8 +1,17 @@
 // =============================================
-// مطعم نارنج - JavaScript كامل
+// مطعم نارنج - JavaScript كامل (معدل لـ Vercel)
 // =============================================
 
-const API_URL = 'http://localhost:3000/api';
+// ===== تحديد رابط الـ API تلقائياً =====
+const API_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+    ? 'http://localhost:3000/api'
+    : '/api';  // على Vercel، استخدم المسار النسبي
+
+// OR استخدم الطريقة دي (أفضل)
+// const API_URL = '/api';  // دا هيشتغل على Vercel و localhost
+
+console.log(`🔗 API URL: ${API_URL}`);
+
 let currentUser = null;
 let currentTheme = 'dark';
 let currentLang = 'ar';
@@ -18,6 +27,7 @@ async function loginUser(username, password) {
         });
         return await response.json();
     } catch (error) {
+        console.error('❌ Login error:', error);
         return { success: false, message: 'خطأ في الاتصال بالخادم' };
     }
 }
@@ -31,6 +41,7 @@ async function registerUser(username, email, password, full_name, phone) {
         });
         return await response.json();
     } catch (error) {
+        console.error('❌ Register error:', error);
         return { success: false, message: 'خطأ في الاتصال بالخادم' };
     }
 }
@@ -40,6 +51,7 @@ async function getReviews() {
         const response = await fetch(`${API_URL}/reviews`);
         return await response.json();
     } catch (error) {
+        console.error('❌ Get reviews error:', error);
         return { success: false, reviews: [] };
     }
 }
@@ -53,6 +65,7 @@ async function addReview(customer_id, customer_name, stars, review_text) {
         });
         return await response.json();
     } catch (error) {
+        console.error('❌ Add review error:', error);
         return { success: false, message: 'خطأ في الاتصال بالخادم' };
     }
 }
@@ -66,6 +79,7 @@ async function deleteReview(review_id, admin_id) {
         });
         return await response.json();
     } catch (error) {
+        console.error('❌ Delete review error:', error);
         return { success: false, message: 'خطأ في الاتصال بالخادم' };
     }
 }
@@ -87,9 +101,12 @@ async function addBooking(customer_id, customer_name, customer_phone, booking_da
         });
         return await response.json();
     } catch (error) {
+        console.error('❌ Add booking error:', error);
         return { success: false, message: 'خطأ في الاتصال بالخادم' };
     }
 }
+
+// ===== باقي الكود زي ما هو =====
 
 // ===== التحكم في واجهة المستخدم =====
 
