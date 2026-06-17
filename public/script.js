@@ -128,28 +128,22 @@ function showApp() {
     
     const isAdmin = currentUser && currentUser.role === 'admin';
     
-    let buttonsHTML = `
+    // ===== إظهار/إخفاء زرار لوحة التحكم =====
+    const dashboardContainer = document.getElementById('adminDashboardContainer');
+    if (dashboardContainer) {
+        dashboardContainer.style.display = isAdmin ? 'block' : 'none';
+    }
+    
+    // ===== تحديث أزرار تسجيل الدخول =====
+    const authButtons = document.getElementById('authButtons');
+    authButtons.innerHTML = `
         <span style="color:var(--primary); font-size:1.1rem;">
             👋 ${currentLang === 'ar' ? 'مرحباً' : 'Welcome'} ${currentUser.full_name || currentUser.username}
         </span>
-    `;
-    
-    // ===== زرار لوحة التحكم للأدمن فقط =====
-    if (isAdmin) {
-        buttonsHTML += `
-            <a href="/admin.html" class="btn btn-primary" style="margin: 0 10px;">
-                📊 ${currentLang === 'ar' ? 'لوحة التحكم' : 'Dashboard'}
-            </a>
-        `;
-    }
-    
-    buttonsHTML += `
         <button class="btn btn-outline-light" onclick="logout()">
             ${currentLang === 'ar' ? 'تسجيل الخروج' : 'Logout'}
         </button>
     `;
-    
-    document.getElementById('authButtons').innerHTML = buttonsHTML;
     
     loadMenu();
     loadReviews();
