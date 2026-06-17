@@ -6,30 +6,29 @@ const path = require('path');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Middleware
 app.use(cors());
 app.use(express.json());
 app.use(express.static('public'));
 
 // =============================================
-// قاعدة البيانات - In-Memory لـ Vercel
+// قاعدة البيانات - In-Memory
 // =============================================
 
 const DB_PATH = ':memory:';
 
-console.log(`📊 استخدام قاعدة بيانات In-Memory (لـ Vercel)`);
+console.log(`📊 استخدام قاعدة بيانات In-Memory`);
 
 const db = new sqlite3.Database(DB_PATH, (err) => {
     if (err) {
         console.error('❌ خطأ في فتح قاعدة البيانات:', err.message);
         process.exit(1);
     }
-    console.log('✅ تم الاتصال بقاعدة البيانات (In-Memory)');
+    console.log('✅ تم الاتصال بقاعدة البيانات');
     createTables();
 });
 
 function createTables() {
-    // 1. جدول العملاء (مع عمود role)
+    // 1. جدول العملاء
     db.run(`
         CREATE TABLE IF NOT EXISTS customers (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -85,9 +84,9 @@ function createTables() {
         else console.log('✅ جدول reviews جاهز');
     });
 
-    // ===== إضافة الأدمن بشكل آمن =====
+    // ===== إضافة الأدمن =====
     setTimeout(() => {
-        // حذف أي مستخدمين موجودين (للتأكد من عدم وجود تعارض)
+        // حذف أي مستخدمين موجودين
         db.run(`DELETE FROM customers`, (err) => {
             if (err) {
                 console.error('❌ خطأ في حذف المستخدمين:', err.message);
@@ -105,22 +104,6 @@ function createTables() {
                 } else {
                     console.log('✅ تم إضافة حساب الأدمن: admin / admin123');
                 }
-
-                // عرض جميع المستخدمين
-                db.all(`SELECT id, username, role FROM customers`, (err, rows) => {
-                    if (err) {
-                        console.error('❌ خطأ في عرض المستخدمين:', err.message);
-                        return;
-                    }
-                    console.log('\n📋 المستخدمين في قاعدة البيانات:');
-                    if (rows.length === 0) {
-                        console.log('   ❌ لا يوجد مستخدمين!');
-                    } else {
-                        rows.forEach(r => console.log(`   ${r.id}. ${r.username} (${r.role})`));
-                    }
-                    console.log('\n👑 استخدم: admin / admin123');
-                    console.log('⚠️  ملاحظة: البيانات في الذاكرة فقط (تختفي عند إعادة التشغيل)\n');
-                });
             });
         });
     }, 200);
@@ -130,7 +113,7 @@ function createTables() {
 // API Routes
 // =============================================
 
-// ===== تسجيل الدخول (مع إرجاع الدور) =====
+// ===== تسجيل الدخول =====
 app.post('/api/login', (req, res) => {
     const { username, password } = req.body;
     console.log(`🔐 محاولة تسجيل دخول: ${username}`);
@@ -144,7 +127,7 @@ app.post('/api/login', (req, res) => {
                 return res.status(500).json({ success: false, message: 'خطأ في الخادم' });
             }
             if (!customer) {
-                console.log(`❌ فشل: ${username} - غير موجود أو كلمة مرور خاطئة`);
+                console.log(`❌ فشل: ${username}`);
                 return res.status(401).json({ success: false, message: 'اسم المستخدم أو كلمة المرور غير صحيحة' });
             }
             
@@ -171,7 +154,7 @@ app.post('/api/login', (req, res) => {
     );
 });
 
-// ===== إنشاء حساب (دائماً user) =====
+// ===== إنشاء حساب =====
 app.post('/api/register', (req, res) => {
     const { username, email, password, full_name, phone } = req.body;
     
@@ -217,7 +200,7 @@ app.post('/api/register', (req, res) => {
     );
 });
 
-// ===== جلب التقييمات (مع إظهار اسم المستخدم) =====
+// ===== جلب التقييمات =====
 app.get('/api/reviews', (req, res) => {
     db.all(
         `SELECT r.*, c.full_name, c.username, c.role 
@@ -254,12 +237,11 @@ app.post('/api/reviews', (req, res) => {
     );
 });
 
-// ===== حذف تقييم (للأدمن فقط) =====
+// ===== حذف تقييم =====
 app.delete('/api/reviews/:id', (req, res) => {
     const { id } = req.params;
     const { admin_id } = req.body;
     
-    // التحقق من أن المستخدم أدمن
     db.get(`SELECT role FROM customers WHERE id = ?`, [admin_id], (err, user) => {
         if (err || !user) {
             return res.status(401).json({ success: false, message: 'غير مصرح به' });
@@ -268,7 +250,6 @@ app.delete('/api/reviews/:id', (req, res) => {
             return res.status(403).json({ success: false, message: 'صلاحيات غير كافية' });
         }
         
-        // حذف التقييم
         db.run(`DELETE FROM reviews WHERE id = ?`, [id], function(err) {
             if (err) {
                 return res.status(500).json({ success: false, message: 'خطأ في حذف التقييم' });
@@ -281,7 +262,7 @@ app.delete('/api/reviews/:id', (req, res) => {
     });
 });
 
-// ===== جلب الحجوزات (للصفحة الرئيسية) =====
+// ===== جلب الحجوزات =====
 app.get('/api/bookings', (req, res) => {
     const { customer_id } = req.query;
     let query = `
@@ -318,19 +299,12 @@ app.post('/api/bookings', (req, res) => {
             if (err) {
                 return res.status(500).json({ success: false, message: 'خطأ في إجراء الحجز' });
             }
-            res.json({ 
-                success: true, 
-                message: 'تم حجز الطاولة بنجاح'
-            });
+            res.json({ success: true, message: 'تم حجز الطاولة بنجاح' });
         }
     );
 });
 
-// =============================================
-// API للتحقق من صلاحيات الأدمن
-// =============================================
-
-// ===== التحقق من صلاحيات المستخدم =====
+// ===== التحقق من صلاحيات الأدمن =====
 app.get('/api/check-admin/:id', (req, res) => {
     const { id } = req.params;
     
@@ -342,11 +316,7 @@ app.get('/api/check-admin/:id', (req, res) => {
     });
 });
 
-// =============================================
-// Admin APIs (للأدمن فقط)
-// =============================================
-
-// ===== عرض كل العملاء =====
+// ===== Admin APIs =====
 app.get('/api/admin/customers', (req, res) => {
     const { admin_id } = req.query;
     
@@ -364,7 +334,6 @@ app.get('/api/admin/customers', (req, res) => {
     });
 });
 
-// ===== عرض كل الحجوزات =====
 app.get('/api/admin/bookings', (req, res) => {
     const { admin_id } = req.query;
     
@@ -382,7 +351,6 @@ app.get('/api/admin/bookings', (req, res) => {
     });
 });
 
-// ===== عرض كل التقييمات =====
 app.get('/api/admin/reviews', (req, res) => {
     const { admin_id } = req.query;
     
@@ -400,7 +368,6 @@ app.get('/api/admin/reviews', (req, res) => {
     });
 });
 
-// ===== الإحصائيات (للأدمن فقط) =====
 app.get('/api/admin/stats', (req, res) => {
     const { admin_id } = req.query;
     
@@ -452,10 +419,7 @@ app.get('/api/admin/stats', (req, res) => {
     });
 });
 
-// =============================================
-// عرض الصفحات
-// =============================================
-
+// ===== عرض الصفحات =====
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
@@ -464,15 +428,8 @@ app.get('/admin.html', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'admin.html'));
 });
 
-// =============================================
-// تشغيل الخادم
-// =============================================
+// ===== تشغيل الخادم =====
 app.listen(PORT, () => {
     console.log(`\n🚀 الخادم يعمل على http://localhost:${PORT}`);
-    console.log('📊 قاعدة البيانات: In-Memory (لـ Vercel)');
-    console.log('📁 المسار:', __dirname);
-    console.log('📋 صفحة admin: http://localhost:3000/admin.html');
-    console.log('\n⚠️  ملاحظة: البيانات في الذاكرة فقط (تختفي عند إعادة التشغيل)');
-    console.log('👑 أدمن: admin / admin123');
-    console.log('💡 جرب تدخل بـ admin / admin123\n');
+    console.log('👑 أدمن: admin / admin123\n');
 });
