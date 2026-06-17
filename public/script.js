@@ -1,14 +1,11 @@
 // =============================================
-// مطعم نارنج - JavaScript كامل (معدل لـ Vercel)
+// مطعم نارنج - JavaScript كامل (معدل)
 // =============================================
 
-// ===== تحديد رابط الـ API تلقائياً =====
+// ===== تحديد رابط الـ API =====
 const API_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
     ? 'http://localhost:3000/api'
-    : '/api';  // على Vercel، استخدم المسار النسبي
-
-// OR استخدم الطريقة دي (أفضل)
-// const API_URL = '/api';  // دا هيشتغل على Vercel و localhost
+    : '/api';
 
 console.log(`🔗 API URL: ${API_URL}`);
 
@@ -25,7 +22,9 @@ async function loginUser(username, password) {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ username, password })
         });
-        return await response.json();
+        const data = await response.json();
+        console.log('🔐 Login response:', data);
+        return data;
     } catch (error) {
         console.error('❌ Login error:', error);
         return { success: false, message: 'خطأ في الاتصال بالخادم' };
@@ -106,8 +105,6 @@ async function addBooking(customer_id, customer_name, customer_phone, booking_da
     }
 }
 
-// ===== باقي الكود زي ما هو =====
-
 // ===== التحكم في واجهة المستخدم =====
 
 function showLogin() {
@@ -130,18 +127,29 @@ function showApp() {
     document.getElementById('reviews').style.display = 'block';
     
     const isAdmin = currentUser && currentUser.role === 'admin';
-    const adminBadge = isAdmin ? ' 👑' : '';
-    const adminLink = isAdmin ? `<a href="/admin.html" style="color:var(--primary); margin-right:10px; font-size:0.9rem; text-decoration:none;">📊</a>` : '';
     
-    document.getElementById('authButtons').innerHTML = `
+    let buttonsHTML = `
         <span style="color:var(--primary); font-size:1.1rem;">
-            ${currentLang === 'ar' ? 'مرحباً' : 'Welcome'} ${currentUser.full_name || currentUser.username}${adminBadge}
-            ${adminLink}
+            👋 ${currentLang === 'ar' ? 'مرحباً' : 'Welcome'} ${currentUser.full_name || currentUser.username}
         </span>
+    `;
+    
+    if (isAdmin) {
+        buttonsHTML += `
+            <a href="/admin.html" class="btn btn-primary" style="margin: 0 10px;">
+                📊 ${currentLang === 'ar' ? 'لوحة التحكم' : 'Dashboard'}
+            </a>
+        `;
+    }
+    
+    buttonsHTML += `
         <button class="btn btn-outline-light" onclick="logout()">
             ${currentLang === 'ar' ? 'تسجيل الخروج' : 'Logout'}
         </button>
     `;
+    
+    document.getElementById('authButtons').innerHTML = buttonsHTML;
+    
     loadMenu();
     loadReviews();
 }
@@ -175,23 +183,18 @@ function toggleLanguage() {
     
     document.getElementById('langLabel').textContent = isArabic ? 'AR' : 'EN';
     
-    // تحديث اللوجو
     updateLogo();
     
-    // تحديث كل النصوص
     document.querySelectorAll('[data-en][data-ar]').forEach(el => {
         el.textContent = isArabic ? el.getAttribute('data-en') : el.getAttribute('data-ar');
     });
     
-    // تحديث الـ placeholders
     document.querySelectorAll('[data-en-placeholder][data-ar-placeholder]').forEach(el => {
         el.placeholder = isArabic ? el.getAttribute('data-en-placeholder') : el.getAttribute('data-ar-placeholder');
     });
     
-    // تحديث الأزرار
     updateButtons();
     
-    // إعادة تحميل القائمة
     loadMenu();
     loadReviews();
 }
@@ -256,14 +259,19 @@ document.getElementById('loginForm').addEventListener('submit', async function(e
     const password = document.getElementById('loginPassword').value.trim();
     const msg = document.getElementById('loginMessage');
 
+    msg.innerHTML = '⏳ جاري التحقق...';
+    msg.style.color = '#f39c12';
+
     const result = await loginUser(username, password);
+    console.log('📩 Login result:', result);
+    
     if (result.success) {
         currentUser = result.user;
         msg.innerHTML = '✅ ' + result.message;
         msg.style.color = '#8fbc8f';
         setTimeout(() => showApp(), 500);
     } else {
-        msg.innerHTML = '❌ ' + result.message;
+        msg.innerHTML = '❌ ' + (result.message || 'خطأ غير معروف');
         msg.style.color = '#e07b7b';
     }
 });
@@ -401,7 +409,7 @@ async function handleDeleteReview(reviewId) {
 
 // ===== تحميل البيانات =====
 
-// القائمة مع الصور (بالدولار)
+// القائمة مع الصور
 function loadMenu() {
     const menuData = {
         'مشاوي اللحم / Meat Grills': [
@@ -463,7 +471,7 @@ function loadMenu() {
     container.innerHTML = html;
 }
 
-// ===== التقييمات (مع زر حذف للأدمن) =====
+// ===== التقييمات =====
 async function loadReviews() {
     const result = await getReviews();
     const container = document.getElementById('reviewsGrid');
@@ -510,7 +518,6 @@ async function loadReviews() {
 
 // ===== تهيئة الصفحة =====
 document.addEventListener('DOMContentLoaded', function() {
-    // استرجاع الوضع المحفوظ
     const savedTheme = localStorage.getItem('theme');
     if (savedTheme) {
         currentTheme = savedTheme;
@@ -518,10 +525,8 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('themeIcon').className = currentTheme === 'dark' ? 'fas fa-moon' : 'fas fa-sun';
     }
     
-    // تحديث اللوجو
     updateLogo();
     
-    // تأثيرات الظهور
     const revealElements = document.querySelectorAll('.reveal');
     const observer = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
@@ -542,7 +547,6 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }, 200);
     
-    // إغلاق القائمة الموبايل عند الضغط خارجها
     document.addEventListener('click', function(e) {
         const nav = document.getElementById('navLinks');
         const menuBtn = document.querySelector('.mobile-menu-btn');
