@@ -2,7 +2,6 @@ const express = require('express');
 const sqlite3 = require('sqlite3').verbose();
 const cors = require('cors');
 const path = require('path');
-const fs = require('fs');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -86,9 +85,9 @@ function createTables() {
         else console.log('✅ جدول reviews جاهز');
     });
 
-    // بعد ما تتخلق الجداول، نضيف الأدمن
+    // ===== إضافة الأدمن بشكل آمن =====
     setTimeout(() => {
-        // ===== أولاً: نحذف أي مستخدمين موجودين (عشان نتأكد) =====
+        // حذف أي مستخدمين موجودين (للتأكد من عدم وجود تعارض)
         db.run(`DELETE FROM customers`, (err) => {
             if (err) {
                 console.error('❌ خطأ في حذف المستخدمين:', err.message);
@@ -96,7 +95,7 @@ function createTables() {
             }
             console.log('🗑️ تم حذف جميع المستخدمين السابقين');
 
-            // ===== ثانياً: نضيف الأدمن =====
+            // إضافة الأدمن
             db.run(`
                 INSERT INTO customers (username, email, password, full_name, phone, role)
                 VALUES ('admin', 'admin@naring.com', 'admin123', 'مدير المطعم', '01020063819', 'admin')
@@ -107,7 +106,7 @@ function createTables() {
                     console.log('✅ تم إضافة حساب الأدمن: admin / admin123');
                 }
 
-                // ===== ثالثاً: نعرض جميع المستخدمين =====
+                // عرض جميع المستخدمين
                 db.all(`SELECT id, username, role FROM customers`, (err, rows) => {
                     if (err) {
                         console.error('❌ خطأ في عرض المستخدمين:', err.message);
