@@ -16,7 +16,6 @@ app.use(express.static('public'));
 // قاعدة البيانات - In-Memory لـ Vercel
 // =============================================
 
-// استخدام ':memory:' بدلاً من ملف naring.db عشان يشتغل على Vercel
 const DB_PATH = ':memory:';
 
 console.log(`📊 استخدام قاعدة بيانات In-Memory (لـ Vercel)`);
@@ -87,33 +86,45 @@ function createTables() {
         else console.log('✅ جدول reviews جاهز');
     });
 
-    // ===== إضافة الأدمن بشكل آمن =====
-    // في حالة عدم وجود الأدمن، يتم إضافته تلقائياً
-    // INSERT OR IGNORE يعني: لو مش موجود، ضيفه؛ لو موجود، متعملهاش حاجة
-    db.run(`
-        INSERT OR IGNORE INTO customers (username, email, password, full_name, phone, role)
-        VALUES ('admin', 'admin@naring.com', 'admin123', 'مدير المطعم', '01020063819', 'admin')
-    `, function(err) {
-        if (err) {
-            console.error('❌ خطأ في إضافة الأدمن:', err.message);
-        } else if (this.changes > 0) {
-            console.log('✅ تم إضافة حساب الأدمن: admin / admin123');
-        } else {
-            console.log('✅ حساب الأدمن موجود بالفعل');
-        }
-    });
-
-    // عرض المستخدمين الموجودين
+    // بعد ما تتخلق الجداول، نضيف الأدمن
     setTimeout(() => {
-        db.all(`SELECT id, username, role FROM customers`, (err, rows) => {
-            if (rows && rows.length > 0) {
-                console.log('\n📋 المستخدمين في قاعدة البيانات:');
-                rows.forEach(r => console.log(`   ${r.id}. ${r.username} (${r.role})`));
-                console.log('\n👑 أدمن: admin / admin123');
-                console.log('⚠️  ملاحظة: البيانات في الذاكرة فقط (تختفي عند إعادة التشغيل)\n');
+        // ===== أولاً: نحذف أي مستخدمين موجودين (عشان نتأكد) =====
+        db.run(`DELETE FROM customers`, (err) => {
+            if (err) {
+                console.error('❌ خطأ في حذف المستخدمين:', err.message);
+                return;
             }
+            console.log('🗑️ تم حذف جميع المستخدمين السابقين');
+
+            // ===== ثانياً: نضيف الأدمن =====
+            db.run(`
+                INSERT INTO customers (username, email, password, full_name, phone, role)
+                VALUES ('admin', 'admin@naring.com', 'admin123', 'مدير المطعم', '01020063819', 'admin')
+            `, function(err) {
+                if (err) {
+                    console.error('❌ خطأ في إضافة الأدمن:', err.message);
+                } else {
+                    console.log('✅ تم إضافة حساب الأدمن: admin / admin123');
+                }
+
+                // ===== ثالثاً: نعرض جميع المستخدمين =====
+                db.all(`SELECT id, username, role FROM customers`, (err, rows) => {
+                    if (err) {
+                        console.error('❌ خطأ في عرض المستخدمين:', err.message);
+                        return;
+                    }
+                    console.log('\n📋 المستخدمين في قاعدة البيانات:');
+                    if (rows.length === 0) {
+                        console.log('   ❌ لا يوجد مستخدمين!');
+                    } else {
+                        rows.forEach(r => console.log(`   ${r.id}. ${r.username} (${r.role})`));
+                    }
+                    console.log('\n👑 استخدم: admin / admin123');
+                    console.log('⚠️  ملاحظة: البيانات في الذاكرة فقط (تختفي عند إعادة التشغيل)\n');
+                });
+            });
         });
-    }, 100);
+    }, 200);
 }
 
 // =============================================
@@ -123,17 +134,22 @@ function createTables() {
 // ===== تسجيل الدخول (مع إرجاع الدور) =====
 app.post('/api/login', (req, res) => {
     const { username, password } = req.body;
+    console.log(`🔐 محاولة تسجيل دخول: ${username}`);
     
     db.get(
         `SELECT * FROM customers WHERE username = ? AND password = ?`,
         [username, password],
         (err, customer) => {
             if (err) {
+                console.error('❌ خطأ في الاستعلام:', err);
                 return res.status(500).json({ success: false, message: 'خطأ في الخادم' });
             }
             if (!customer) {
+                console.log(`❌ فشل: ${username} - غير موجود أو كلمة مرور خاطئة`);
                 return res.status(401).json({ success: false, message: 'اسم المستخدم أو كلمة المرور غير صحيحة' });
             }
+            
+            console.log(`✅ نجاح: ${username} (${customer.role})`);
             
             db.run(
                 `UPDATE customers SET last_login = CURRENT_TIMESTAMP WHERE id = ?`,
@@ -453,11 +469,11 @@ app.get('/admin.html', (req, res) => {
 // تشغيل الخادم
 // =============================================
 app.listen(PORT, () => {
-    console.log(`🚀 الخادم يعمل على http://localhost:${PORT}`);
+    console.log(`\n🚀 الخادم يعمل على http://localhost:${PORT}`);
     console.log('📊 قاعدة البيانات: In-Memory (لـ Vercel)');
     console.log('📁 المسار:', __dirname);
     console.log('📋 صفحة admin: http://localhost:3000/admin.html');
     console.log('\n⚠️  ملاحظة: البيانات في الذاكرة فقط (تختفي عند إعادة التشغيل)');
-    console.log('👑 حساب الأدمن: admin / admin123');
-    console.log('💡 سيتم إضافة الأدمن تلقائياً إن لم يكن موجوداً\n');
+    console.log('👑 أدمن: admin / admin123');
+    console.log('💡 جرب تدخل بـ admin / admin123\n');
 });
