@@ -128,28 +128,33 @@ function showApp() {
     
     const isAdmin = currentUser && currentUser.role === 'admin';
     
-    let buttonsHTML = `
-        <span style="color:var(--primary); font-size:1.1rem;">
-            👋 ${currentLang === 'ar' ? 'مرحباً' : 'Welcome'} ${currentUser.full_name || currentUser.username}
-        </span>
-    `;
+    // مسح المحتوى الحالي
+    const authButtons = document.getElementById('authButtons');
+    authButtons.innerHTML = '';
     
-    // ===== زرار لوحة التحكم للأدمن فقط =====
+    // ===== زرار الترحيب =====
+    const welcomeSpan = document.createElement('span');
+    welcomeSpan.style.color = 'var(--primary)';
+    welcomeSpan.style.fontSize = '1.1rem';
+    welcomeSpan.textContent = `👋 ${currentLang === 'ar' ? 'مرحباً' : 'Welcome'} ${currentUser.full_name || currentUser.username}`;
+    authButtons.appendChild(welcomeSpan);
+    
+    // ===== زرار لوحة التحكم (للأدمن فقط) =====
     if (isAdmin) {
-        buttonsHTML += `
-            <a href="/admin.html" class="btn btn-primary" style="margin: 0 10px;">
-                📊 ${currentLang === 'ar' ? 'لوحة التحكم' : 'Dashboard'}
-            </a>
-        `;
+        const dashboardBtn = document.createElement('a');
+        dashboardBtn.href = '/admin.html';
+        dashboardBtn.className = 'btn btn-primary';
+        dashboardBtn.style.margin = '0 10px';
+        dashboardBtn.textContent = `📊 ${currentLang === 'ar' ? 'لوحة التحكم' : 'Dashboard'}`;
+        authButtons.appendChild(dashboardBtn);
     }
     
-    buttonsHTML += `
-        <button class="btn btn-outline-light" onclick="logout()">
-            ${currentLang === 'ar' ? 'تسجيل الخروج' : 'Logout'}
-        </button>
-    `;
-    
-    document.getElementById('authButtons').innerHTML = buttonsHTML;
+    // ===== زرار تسجيل الخروج =====
+    const logoutBtn = document.createElement('button');
+    logoutBtn.className = 'btn btn-outline-light';
+    logoutBtn.onclick = logout;
+    logoutBtn.textContent = currentLang === 'ar' ? 'تسجيل الخروج' : 'Logout';
+    authButtons.appendChild(logoutBtn);
     
     loadMenu();
     loadReviews();
