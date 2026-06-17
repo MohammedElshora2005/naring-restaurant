@@ -87,33 +87,33 @@ function createTables() {
         else console.log('✅ جدول reviews جاهز');
     });
 
-    // إضافة مستخدمين تجريبيين (أدمن + مستخدمين عاديين)
-    db.get(`SELECT COUNT(*) as count FROM customers`, (err, row) => {
+    // ===== إضافة الأدمن بشكل آمن =====
+    // في حالة عدم وجود الأدمن، يتم إضافته تلقائياً
+    // INSERT OR IGNORE يعني: لو مش موجود، ضيفه؛ لو موجود، متعملهاش حاجة
+    db.run(`
+        INSERT OR IGNORE INTO customers (username, email, password, full_name, phone, role)
+        VALUES ('admin', 'admin@naring.com', 'admin123', 'مدير المطعم', '01020063819', 'admin')
+    `, function(err) {
         if (err) {
-            console.error('❌ خطأ في التحقق من العملاء:', err.message);
-            return;
-        }
-        if (row && row.count === 0) {
-            const sampleCustomers = [
-                // حساب الأدمن
-                { username: 'admin', email: 'admin@naring.com', password: 'admin123', full_name: 'مدير المطعم', phone: '01020063819', role: 'admin' },
-                // مستخدمين عاديين
-                { username: 'mostafa', email: 'mostafa@email.com', password: '123456', full_name: 'مصطفى أحمد', phone: '01020063819', role: 'user' },
-                { username: 'nadia', email: 'nadia@email.com', password: '123456', full_name: 'نادية محمد', phone: '01020063819', role: 'user' }
-            ];
-
-            sampleCustomers.forEach(customer => {
-                db.run(`
-                    INSERT INTO customers (username, email, password, full_name, phone, role)
-                    VALUES (?, ?, ?, ?, ?, ?)
-                `, [customer.username, customer.email, customer.password, customer.full_name, customer.phone, customer.role]);
-            });
-            console.log('✅ تم إضافة مستخدمين تجريبيين (أدمن + مستخدمين)');
-            console.log('👑 أدمن: admin / admin123');
-            console.log('👤 مستخدم: mostafa / 123456');
-            console.log('⚠️  ملاحظة: البيانات في الذاكرة فقط (تختفي عند إعادة التشغيل)');
+            console.error('❌ خطأ في إضافة الأدمن:', err.message);
+        } else if (this.changes > 0) {
+            console.log('✅ تم إضافة حساب الأدمن: admin / admin123');
+        } else {
+            console.log('✅ حساب الأدمن موجود بالفعل');
         }
     });
+
+    // عرض المستخدمين الموجودين
+    setTimeout(() => {
+        db.all(`SELECT id, username, role FROM customers`, (err, rows) => {
+            if (rows && rows.length > 0) {
+                console.log('\n📋 المستخدمين في قاعدة البيانات:');
+                rows.forEach(r => console.log(`   ${r.id}. ${r.username} (${r.role})`));
+                console.log('\n👑 أدمن: admin / admin123');
+                console.log('⚠️  ملاحظة: البيانات في الذاكرة فقط (تختفي عند إعادة التشغيل)\n');
+            }
+        });
+    }, 100);
 }
 
 // =============================================
@@ -458,6 +458,6 @@ app.listen(PORT, () => {
     console.log('📁 المسار:', __dirname);
     console.log('📋 صفحة admin: http://localhost:3000/admin.html');
     console.log('\n⚠️  ملاحظة: البيانات في الذاكرة فقط (تختفي عند إعادة التشغيل)');
-    console.log('👑 أدمن: admin / admin123');
-    console.log('👤 مستخدم: mostafa / 123456\n');
+    console.log('👑 حساب الأدمن: admin / admin123');
+    console.log('💡 سيتم إضافة الأدمن تلقائياً إن لم يكن موجوداً\n');
 });
