@@ -22,15 +22,15 @@ const pool = new Pool({
     }
 });
 
-console.log('📊 جاري الاتصال بـ PostgreSQL (Neon)...');
+console.log(' جاري الاتصال بـ PostgreSQL (Neon)...');
 
 pool.connect((err, client, release) => {
     if (err) {
-        console.error('❌ خطأ في الاتصال:', err.message);
-        console.log('⚠️ تأكد من إضافة DATABASE_URL في Environment Variables');
+        console.error('خطأ في الاتصال:', err.message);
+        console.log('تأكد من إضافة DATABASE_URL في Environment Variables');
         return;
     }
-    console.log('✅ تم الاتصال بقاعدة البيانات PostgreSQL (Neon)');
+    console.log('تم الاتصال بقاعدة البيانات PostgreSQL (Neon)');
     release();
     createTables();
 });
@@ -52,7 +52,7 @@ async function createTables() {
                 last_login TIMESTAMP
             )
         `);
-        console.log('✅ جدول customers جاهز');
+        console.log(' جدول customers جاهز');
 
         // 2. جدول الحجوزات
         await pool.query(`
@@ -70,7 +70,7 @@ async function createTables() {
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             )
         `);
-        console.log('✅ جدول bookings جاهز');
+        console.log(' جدول bookings جاهز');
 
         // 3. جدول التقييمات
         await pool.query(`
@@ -83,7 +83,7 @@ async function createTables() {
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             )
         `);
-        console.log('✅ جدول reviews جاهز');
+        console.log(' جدول reviews جاهز');
 
         // ===== إضافة الأدمن =====
         const adminCheck = await pool.query(
@@ -95,20 +95,20 @@ async function createTables() {
                 INSERT INTO customers (username, email, password, full_name, phone, role)
                 VALUES ('admin', 'admin@naring.com', 'admin123', 'مدير المطعم', '01020063819', 'admin')
             `);
-            console.log('✅ تم إضافة حساب الأدمن: admin / admin123');
+            console.log('تم إضافة حساب الأدمن: admin / admin123');
         } else {
-            console.log('✅ حساب الأدمن موجود بالفعل');
+            console.log(' حساب الأدمن موجود بالفعل');
         }
 
         // عرض المستخدمين
         const users = await pool.query(`SELECT id, username, role FROM customers`);
-        console.log('\n📋 المستخدمين في قاعدة البيانات:');
+        console.log('\n المستخدمين في قاعدة البيانات:');
         users.rows.forEach(r => console.log(`   ${r.id}. ${r.username} (${r.role})`));
-        console.log('\n👑 استخدم: admin / admin123');
-        console.log('💾 البيانات محفوظة في Neon PostgreSQL\n');
+        console.log('\n استخدم: admin / admin123');
+        console.log(' البيانات محفوظة في Neon PostgreSQL\n');
 
     } catch (err) {
-        console.error('❌ خطأ في إنشاء الجداول:', err.message);
+        console.error(' خطأ في إنشاء الجداول:', err.message);
     }
 }
 
@@ -119,7 +119,7 @@ async function createTables() {
 // ===== تسجيل الدخول =====
 app.post('/api/login', async (req, res) => {
     const { username, password } = req.body;
-    console.log(`🔐 محاولة تسجيل دخول: ${username}`);
+    console.log(` محاولة تسجيل دخول: ${username}`);
 
     try {
         const result = await pool.query(
@@ -128,12 +128,12 @@ app.post('/api/login', async (req, res) => {
         );
 
         if (result.rows.length === 0) {
-            console.log(`❌ فشل: ${username}`);
+            console.log(` فشل: ${username}`);
             return res.status(401).json({ success: false, message: 'اسم المستخدم أو كلمة المرور غير صحيحة' });
         }
 
         const customer = result.rows[0];
-        console.log(`✅ نجاح: ${username} (${customer.role})`);
+        console.log(` نجاح: ${username} (${customer.role})`);
 
         await pool.query(
             `UPDATE customers SET last_login = CURRENT_TIMESTAMP WHERE id = $1`,
@@ -153,7 +153,7 @@ app.post('/api/login', async (req, res) => {
             }
         });
     } catch (err) {
-        console.error('❌ خطأ:', err);
+        console.error(' خطأ:', err);
         res.status(500).json({ success: false, message: 'خطأ في الخادم' });
     }
 });
@@ -190,7 +190,7 @@ app.post('/api/register', async (req, res) => {
             user: result.rows[0]
         });
     } catch (err) {
-        console.error('❌ خطأ:', err);
+        console.error(' خطأ:', err);
         res.status(500).json({ success: false, message: 'خطأ في الخادم' });
     }
 });
@@ -206,7 +206,7 @@ app.get('/api/reviews', async (req, res) => {
         `);
         res.json({ success: true, reviews: result.rows });
     } catch (err) {
-        console.error('❌ خطأ:', err);
+        console.error(' خطأ:', err);
         res.status(500).json({ success: false, message: 'خطأ في جلب التقييمات', reviews: [] });
     }
 });
@@ -228,7 +228,7 @@ app.post('/api/reviews', async (req, res) => {
             review: result.rows[0]
         });
     } catch (err) {
-        console.error('❌ خطأ:', err);
+        console.error(' خطأ:', err);
         res.status(500).json({ success: false, message: 'خطأ في إضافة التقييم' });
     }
 });
@@ -256,7 +256,7 @@ app.delete('/api/reviews/:id', async (req, res) => {
 
         res.json({ success: true, message: 'تم حذف التقييم بنجاح' });
     } catch (err) {
-        console.error('❌ خطأ:', err);
+        console.error(' خطأ:', err);
         res.status(500).json({ success: false, message: 'خطأ في حذف التقييم' });
     }
 });
@@ -283,7 +283,7 @@ app.get('/api/bookings', async (req, res) => {
         const result = await pool.query(query, params);
         res.json({ success: true, bookings: result.rows });
     } catch (err) {
-        console.error('❌ خطأ:', err);
+        console.error(' خطأ:', err);
         res.status(500).json({ success: false, message: 'خطأ في جلب الحجوزات', bookings: [] });
     }
 });
@@ -301,7 +301,7 @@ app.post('/api/bookings', async (req, res) => {
 
         res.json({ success: true, message: 'تم حجز الطاولة بنجاح' });
     } catch (err) {
-        console.error('❌ خطأ:', err);
+        console.error(' خطأ:', err);
         res.status(500).json({ success: false, message: 'خطأ في إجراء الحجز' });
     }
 });
@@ -334,7 +334,7 @@ app.get('/api/admin/customers', async (req, res) => {
         const result = await pool.query(`SELECT * FROM customers ORDER BY created_at DESC`);
         res.json(result.rows);
     } catch (err) {
-        console.error('❌ خطأ:', err);
+        console.error(' خطأ:', err);
         res.status(500).json([]);
     }
 });
@@ -351,7 +351,7 @@ app.get('/api/admin/bookings', async (req, res) => {
         const result = await pool.query(`SELECT * FROM bookings ORDER BY created_at DESC`);
         res.json(result.rows);
     } catch (err) {
-        console.error('❌ خطأ:', err);
+        console.error(' خطأ:', err);
         res.status(500).json([]);
     }
 });
@@ -368,7 +368,7 @@ app.get('/api/admin/reviews', async (req, res) => {
         const result = await pool.query(`SELECT * FROM reviews ORDER BY created_at DESC`);
         res.json(result.rows);
     } catch (err) {
-        console.error('❌ خطأ:', err);
+        console.error(' خطأ:', err);
         res.status(500).json([]);
     }
 });
@@ -394,7 +394,7 @@ app.get('/api/admin/stats', async (req, res) => {
             avg_rating: avgRating.rows[0].avg ? parseFloat(avgRating.rows[0].avg).toFixed(1) : '0'
         });
     } catch (err) {
-        console.error('❌ خطأ:', err);
+        console.error(' خطأ:', err);
         res.status(500).json({ customers: 0, bookings: 0, reviews: 0, avg_rating: 0 });
     }
 });
@@ -410,8 +410,8 @@ app.get('/admin.html', (req, res) => {
 
 // ===== تشغيل الخادم =====
 app.listen(PORT, () => {
-    console.log(`\n🚀 الخادم يعمل على http://localhost:${PORT}`);
-    console.log('📊 قاعدة البيانات: PostgreSQL (Neon)');
-    console.log('👑 أدمن: admin / admin123');
-    console.log('💾 البيانات محفوظة في Neon PostgreSQL\n');
+    console.log(`\n الخادم يعمل على http://localhost:${PORT}`);
+    console.log(' قاعدة البيانات: PostgreSQL (Neon)');
+    console.log(' أدمن: admin / admin123');
+    console.log(' البيانات محفوظة في Neon PostgreSQL\n');
 });
