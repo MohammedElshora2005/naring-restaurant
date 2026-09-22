@@ -254,10 +254,10 @@
 
         // ===== تسجيل الدخول كأدمن =====
         async function adminLogin() {
-            const username = prompt(currentLang === 'ar' ? '👑 أدخل اسم المستخدم:' : '👑 Enter username:');
+            const username = prompt(currentLang === 'ar' ? 'أدخل اسم المستخدم:' : 'Enter username:');
             if (!username) return;
             
-            const password = prompt(currentLang === 'ar' ? '🔑 أدخل كلمة المرور:' : '🔑 Enter password:');
+            const password = prompt(currentLang === 'ar' ? 'أدخل كلمة المرور:' : 'Enter password:');
             if (!password) return;
             
             try {
@@ -274,11 +274,11 @@
                     sessionStorage.setItem('adminUser', JSON.stringify(currentUser));
                     renderAdminPanel();
                 } else {
-                    alert(currentLang === 'ar' ? '❌ اسم المستخدم أو كلمة المرور غير صحيحة أو ليس لديك صلاحيات أدمن' : '❌ Invalid credentials or not an admin');
+                    alert(currentLang === 'ar' ? 'اسم المستخدم أو كلمة المرور غير صحيحة أو ليس لديك صلاحيات أدمن' : 'Invalid credentials or not an admin');
                     renderAdminPanel();
                 }
             } catch (error) {
-                alert(currentLang === 'ar' ? '❌ خطأ في الاتصال بالخادم' : '❌ Server error');
+                alert(currentLang === 'ar' ? 'خطأ في الاتصال بالخادم' : 'Server error');
             }
         }
 
@@ -367,7 +367,7 @@
                 data.forEach((c, i) => {
                     const date = c.created_at ? new Date(c.created_at).toLocaleDateString(currentLang === 'ar' ? 'ar-EG' : 'en-US') : '-';
                     const roleBadge = c.role === 'admin' 
-                        ? '<span class="badge badge-admin">👑 Admin</span>' 
+                        ? '<span class="badge badge-admin">Admin</span>' 
                         : '<span class="badge badge-user">User</span>';
                     html += `<tr>
                         <td>${i + 1}</td>
@@ -383,7 +383,7 @@
                 html += `</tbody></table>`;
                 container.innerHTML = html;
             } catch (error) {
-                container.innerHTML = `<div class="error-message">❌ ${currentLang === 'ar' ? 'خطأ في تحميل العملاء' : 'Error loading customers'}</div>`;
+                container.innerHTML = `<div class="error-message">${currentLang === 'ar' ? 'خطأ في تحميل العملاء' : 'Error loading customers'}</div>`;
             }
         }
 
@@ -439,7 +439,7 @@
                 html += `</tbody></table>`;
                 container.innerHTML = html;
             } catch (error) {
-                container.innerHTML = `<div class="error-message">❌ ${currentLang === 'ar' ? 'خطأ في تحميل الحجوزات' : 'Error loading bookings'}</div>`;
+                container.innerHTML = `<div class="error-message">${currentLang === 'ar' ? 'خطأ في تحميل الحجوزات' : 'Error loading bookings'}</div>`;
             }
         }
 
@@ -481,7 +481,7 @@
                         <td>${date}</td>
                         <td>
                             <button class="delete-btn" onclick="deleteReview(${r.id})">
-                                ${currentLang === 'ar' ? '🗑️ حذف' : '🗑️ Delete'}
+                                ${currentLang === 'ar' ? 'حذف' : 'Delete'}
                             </button>
                         </td>
                     </tr>`;
@@ -490,7 +490,7 @@
                 html += `</tbody></table>`;
                 container.innerHTML = html;
             } catch (error) {
-                container.innerHTML = `<div class="error-message">❌ ${currentLang === 'ar' ? 'خطأ في تحميل التقييمات' : 'Error loading reviews'}</div>`;
+                container.innerHTML = `<div class="error-message">${currentLang === 'ar' ? 'خطأ في تحميل التقييمات' : 'Error loading reviews'}</div>`;
             }
         }
 
@@ -520,7 +520,7 @@
                     alert(result.message);
                 }
             } catch (error) {
-                alert(currentLang === 'ar' ? '❌ خطأ في حذف التقييم' : '❌ Error deleting review');
+                alert(currentLang === 'ar' ? 'خطأ في حذف التقييم' : 'Error deleting review');
             }
         }
 
@@ -542,12 +542,12 @@
                 container.innerHTML = `
                     <div class="login-required">
                         <i class="fas fa-lock" style="font-size: 4rem; color: var(--primary); margin-bottom: 1rem;"></i>
-                        <h2>${currentLang === 'ar' ? '🔐 يرجى تسجيل الدخول كأدمن' : '🔐 Please login as Admin'}</h2>
+                        <h2>${currentLang === 'ar' ? 'يرجى تسجيل الدخول كأدمن' : 'Please login as Admin'}</h2>
                         <p style="color: var(--text-muted); margin-bottom: 1.5rem;">
                             ${currentLang === 'ar' ? 'هذه الصفحة مخصصة للمشرفين فقط' : 'This page is for administrators only'}
                         </p>
                         <button class="btn btn-primary" onclick="adminLogin()">
-                            ${currentLang === 'ar' ? '👑 تسجيل الدخول كأدمن' : '👑 Login as Admin'}
+                            ${currentLang === 'ar' ? 'تسجيل الدخول كأدمن' : 'Login as Admin'}
                         </button>
                     </div>
                 `;
@@ -556,10 +556,10 @@
 
             container.innerHTML = `
                 <div class="admin-header">
-                    <h1>📊 ${currentLang === 'ar' ? 'لوحة التحكم' : 'Dashboard'}</h1>
+                    <h1>${currentLang === 'ar' ? 'لوحة التحكم' : 'Dashboard'}</h1>
                     <div class="admin-controls">
                         <span style="color: var(--primary);">
-                            👑 ${currentUser.full_name || currentUser.username}
+                            ${currentUser.full_name || currentUser.username}
                         </span>
                         <button onclick="adminLogout()" style="background: #e74c3c; color: #fff; border: none; padding: 0.5rem 1rem; border-radius: 50px; cursor: pointer;">
                             ${currentLang === 'ar' ? 'تسجيل الخروج' : 'Logout'}
