@@ -7,7 +7,7 @@ const API_URL = window.location.hostname === 'localhost' || window.location.host
     ? 'http://localhost:3000/api'
     : '/api';
 
-console.log(`🔗 API URL: ${API_URL}`);
+console.log(`API URL: ${API_URL}`);
 
 let currentUser = null;
 let currentTheme = 'dark';
@@ -23,10 +23,10 @@ async function loginUser(username, password) {
             body: JSON.stringify({ username, password })
         });
         const data = await response.json();
-        console.log('🔐 Login response:', data);
+        console.log('Login response:', data);
         return data;
     } catch (error) {
-        console.error('❌ Login error:', error);
+        console.error('Login error:', error);
         return { success: false, message: 'خطأ في الاتصال بالخادم' };
     }
 }
@@ -40,7 +40,7 @@ async function registerUser(username, email, password, full_name, phone) {
         });
         return await response.json();
     } catch (error) {
-        console.error('❌ Register error:', error);
+        console.error('Register error:', error);
         return { success: false, message: 'خطأ في الاتصال بالخادم' };
     }
 }
@@ -50,7 +50,7 @@ async function getReviews() {
         const response = await fetch(`${API_URL}/reviews`);
         return await response.json();
     } catch (error) {
-        console.error('❌ Get reviews error:', error);
+        console.error('Get reviews error:', error);
         return { success: false, reviews: [] };
     }
 }
@@ -64,7 +64,7 @@ async function addReview(customer_id, customer_name, stars, review_text) {
         });
         return await response.json();
     } catch (error) {
-        console.error('❌ Add review error:', error);
+        console.error('Add review error:', error);
         return { success: false, message: 'خطأ في الاتصال بالخادم' };
     }
 }
@@ -78,7 +78,7 @@ async function deleteReview(review_id, admin_id) {
         });
         return await response.json();
     } catch (error) {
-        console.error('❌ Delete review error:', error);
+        console.error('Delete review error:', error);
         return { success: false, message: 'خطأ في الاتصال بالخادم' };
     }
 }
@@ -100,7 +100,7 @@ async function addBooking(customer_id, customer_name, customer_phone, booking_da
         });
         return await response.json();
     } catch (error) {
-        console.error('❌ Add booking error:', error);
+        console.error('Add booking error:', error);
         return { success: false, message: 'خطأ في الاتصال بالخادم' };
     }
 }
@@ -138,7 +138,7 @@ function showApp() {
     const authButtons = document.getElementById('authButtons');
     authButtons.innerHTML = `
         <span style="color:var(--primary); font-size:1.1rem;">
-            👋 ${currentLang === 'ar' ? 'مرحباً' : 'Welcome'} ${currentUser.full_name || currentUser.username}
+            ${currentLang === 'ar' ? 'مرحباً' : 'Welcome'} ${currentUser.full_name || currentUser.username}
         </span>
         <button class="btn btn-outline-light" onclick="logout()">
             ${currentLang === 'ar' ? 'تسجيل الخروج' : 'Logout'}
@@ -254,19 +254,19 @@ document.getElementById('loginForm').addEventListener('submit', async function(e
     const password = document.getElementById('loginPassword').value.trim();
     const msg = document.getElementById('loginMessage');
 
-    msg.innerHTML = '⏳ جاري التحقق...';
+    msg.innerHTML = 'جاري التحقق...';
     msg.style.color = '#f39c12';
 
     const result = await loginUser(username, password);
-    console.log('📩 Login result:', result);
+    console.log('Login result:', result);
     
     if (result.success) {
         currentUser = result.user;
-        msg.innerHTML = '✅ ' + result.message;
+        msg.innerHTML = ' ' + result.message;
         msg.style.color = '#8fbc8f';
         setTimeout(() => showApp(), 500);
     } else {
-        msg.innerHTML = '❌ ' + (result.message || 'خطأ غير معروف');
+        msg.innerHTML = ' ' + (result.message || 'خطأ غير معروف');
         msg.style.color = '#e07b7b';
     }
 });
@@ -282,19 +282,19 @@ document.getElementById('registerForm').addEventListener('submit', async functio
     const msg = document.getElementById('registerMessage');
 
     if (username.length < 3) {
-        msg.innerHTML = '❌ ' + (currentLang === 'ar' ? 'اسم المستخدم يجب أن يكون 3 أحرف على الأقل' : 'Username must be at least 3 characters');
+        msg.innerHTML = ' ' + (currentLang === 'ar' ? 'اسم المستخدم يجب أن يكون 3 أحرف على الأقل' : 'Username must be at least 3 characters');
         msg.style.color = '#e07b7b';
         return;
     }
     if (password.length < 3) {
-        msg.innerHTML = '❌ ' + (currentLang === 'ar' ? 'كلمة المرور يجب أن تكون 3 أحرف على الأقل' : 'Password must be at least 3 characters');
+        msg.innerHTML = ' ' + (currentLang === 'ar' ? 'كلمة المرور يجب أن تكون 3 أحرف على الأقل' : 'Password must be at least 3 characters');
         msg.style.color = '#e07b7b';
         return;
     }
 
     const result = await registerUser(username, email, password, full_name, phone);
     if (result.success) {
-        msg.innerHTML = '✅ ' + result.message;
+        msg.innerHTML = ' ' + result.message;
         msg.style.color = '#8fbc8f';
         setTimeout(() => {
             document.getElementById('register-section').style.display = 'none';
@@ -304,7 +304,7 @@ document.getElementById('registerForm').addEventListener('submit', async functio
             document.getElementById('registerMessage').innerHTML = '';
         }, 1000);
     } else {
-        msg.innerHTML = '❌ ' + result.message;
+        msg.innerHTML = ' ' + result.message;
         msg.style.color = '#e07b7b';
     }
 });
@@ -325,7 +325,7 @@ document.getElementById('bookingForm').addEventListener('submit', async function
     const msg = document.getElementById('bookingMessage');
 
     if (!name || !date || !time || !people || !phone) {
-        msg.innerHTML = '❌ ' + (currentLang === 'ar' ? 'يرجى ملء جميع الحقول' : 'Please fill all fields');
+        msg.innerHTML = ' ' + (currentLang === 'ar' ? 'يرجى ملء جميع الحقول' : 'Please fill all fields');
         msg.style.color = '#e07b7b';
         return;
     }
@@ -341,12 +341,12 @@ document.getElementById('bookingForm').addEventListener('submit', async function
     );
     
     if (result.success) {
-        msg.innerHTML = '✅ ' + result.message;
+        msg.innerHTML = ' ' + result.message;
         msg.style.color = '#8fbc8f';
         this.reset();
         document.getElementById('bookPhone').value = '01020063819';
     } else {
-        msg.innerHTML = '❌ ' + result.message;
+        msg.innerHTML = ' ' + result.message;
         msg.style.color = '#e07b7b';
     }
 });
@@ -363,19 +363,19 @@ document.getElementById('reviewForm').addEventListener('submit', async function(
     const msg = document.getElementById('reviewMessage');
 
     if (!text || text.length < 3) {
-        msg.innerHTML = '❌ ' + (currentLang === 'ar' ? 'الرجاء كتابة تقييم مناسب (3 أحرف على الأقل)' : 'Please write a proper review (at least 3 characters)');
+        msg.innerHTML = ' ' + (currentLang === 'ar' ? 'الرجاء كتابة تقييم مناسب (3 أحرف على الأقل)' : 'Please write a proper review (at least 3 characters)');
         msg.style.color = '#e07b7b';
         return;
     }
 
     const result = await addReview(currentUser.id, currentUser.full_name || currentUser.username, stars, text);
     if (result.success) {
-        msg.innerHTML = '✅ ' + result.message;
+        msg.innerHTML = ' ' + result.message;
         msg.style.color = '#8fbc8f';
         document.getElementById('reviewText').value = '';
         loadReviews();
     } else {
-        msg.innerHTML = '❌ ' + result.message;
+        msg.innerHTML = ' ' + result.message;
         msg.style.color = '#e07b7b';
     }
 });
@@ -495,7 +495,7 @@ async function loadReviews() {
                 margin-top: 8px;
                 transition: all 0.3s;
             " onmouseover="this.style.background='#c0392b'" onmouseout="this.style.background='#e74c3c'">
-                ${currentLang === 'ar' ? '🗑️ حذف' : '🗑️ Delete'}
+                ${currentLang === 'ar' ? 'حذف' : 'Delete'}
             </button>
         ` : '';
         
